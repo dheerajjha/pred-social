@@ -22,18 +22,18 @@ A transparent scoreboard for stock market opinions where retail investors can ma
 
 ### Microservices
 
-| Service | Port | Description |
-|---------|------|-------------|
-| gateway | 5010 | GraphQL API Gateway with auth guards |
-| auth-svc | 5011 | Authentication & JWT management |
-| user-svc | 5012 | User profiles & follow graph |
-| prediction-svc | 5013 | Prediction CRUD & validation |
-| scoring-worker | 5014 | Auto-verification engine |
-| feed-svc | 5015 | Timeline generation & caching |
-| market-ingest | 5016 | Market data WebSocket ingestion |
-| news-ingest | 5017 | News & corporate actions ingestion |
-| notify-svc | 5018 | Push/email notifications |
-| comm-svc | 5019 | Communities & hashtags |
+| Service | Port | Description | Status |
+|---------|------|-------------|---------|
+| gateway | 5010 | GraphQL API Gateway with auth guards | ✅ Implemented |
+| auth-svc | 5011 | Authentication & JWT management | 🚧 Pending |
+| user-svc | 5012 | User profiles & follow graph | 🚧 Pending |
+| prediction-svc | 5013 | Prediction CRUD & validation | 🚧 Pending |
+| scoring-worker | 5014 | Auto-verification engine | 🚧 Pending |
+| feed-svc | 5015 | Timeline generation & caching | 🚧 Pending |
+| market-ingest | 5016 | Market data WebSocket ingestion | 🚧 Pending |
+| news-ingest | 5017 | News & corporate actions ingestion | 🚧 Pending |
+| notify-svc | 5018 | Push/email notifications | 🚧 Pending |
+| comm-svc | 5019 | Communities & hashtags | 🚧 Pending |
 
 ## 🚀 Getting Started
 
@@ -69,11 +69,17 @@ docker compose -f docker/docker-compose.yml up -d
 5. Run database migrations:
 ```bash
 cd packages/prisma-schema
-pnpm db:migrate
+npx prisma migrate dev
 ```
 
-6. Start development:
+6. Seed the database (optional):
 ```bash
+npx prisma db seed
+```
+
+7. Start development:
+```bash
+cd ../..
 pnpm dev
 ```
 
@@ -82,6 +88,13 @@ pnpm dev
 - **GraphQL Playground**: http://localhost:5010/graphql
 - **pgAdmin**: http://localhost:5050 (admin@pred-social.com / admin_password)
 - **Redis Commander**: http://localhost:8081
+- **Prisma Studio**: Run `cd packages/prisma-schema && npx prisma studio`
+
+### Demo Credentials
+
+After running the seed script, you can login with:
+- **Email**: demo@pred-social.com
+- **Password**: demo123
 
 ## 📦 Project Structure
 
@@ -106,6 +119,27 @@ pred-social/
 └── env.example          # Environment variables template
 ```
 
+## 🗄️ Database Schema
+
+The database schema includes the following main entities:
+
+- **User**: User accounts with authentication and profile information
+- **Stock**: Tradable assets (stocks, indices, ETFs)
+- **Prediction**: User predictions with automatic verification
+- **Community**: Topic-based discussion groups
+- **Follow/StockFollow**: Social graph for users and stocks
+- **NewsArticle**: News and corporate actions
+- **PriceHistory**: Historical price data for backtesting
+- **Notification**: Multi-channel notification system
+
+### Seed Data
+
+The database comes pre-populated with:
+- Demo users (demo@pred-social.com, johndoe)
+- Popular Indian stocks (RELIANCE, TCS, HDFCBANK, INFY, NIFTY)
+- Sample predictions
+- Communities (Options India, Value Investing)
+
 ## 🔄 Event Flow
 
 ### Prediction Creation & Scoring
@@ -127,6 +161,8 @@ pred-social/
 - [x] Database schema design
 - [x] Gateway service with GraphQL
 - [x] Basic auth module structure
+- [x] Database migrations
+- [x] Seed data setup
 - [ ] Complete auth microservice
 - [ ] User service implementation
 - [ ] Basic prediction CRUD
