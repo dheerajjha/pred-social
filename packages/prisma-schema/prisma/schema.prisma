@@ -1,0 +1,509 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - represents both human users and system stock accounts
+model User {
+  id              String          @id @default(uuid())
+  email           String?         @unique
+  phone           String?         @unique
+  username        String          @unique
+  displayName     String
+  bio             String?
+  avatarUrl       String?
+  role            UserRole        @default(USER)
+  status          UserStatus      @default(ACTIVE)
+  authProvider    AuthProvider    @default(EMAIL)
+  kiteUserId      String?         @unique
+  
+  // Profile stats
+  followersCount  Int             @default(0)
+  followingCount  Int             @default(0)
+  predictionsCount Int            @default(0)
+  hitRate         Float           @default(0)
+  
+  // Security
+  passwordHash    String?
+  otpSecret       String?
+  lastLoginAt     DateTime?
+  loginAttempts   Int             @default(0)
+  lockedUntil     DateTime?
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  predictions     Prediction[]
+  followers       Follow[]        @relation("followers")
+  following       Follow[]        @relation("following")
+  stockFollows    StockFollow[]
+  communities     CommunityMember[]
+  posts           Post[]
+  comments        Comment[]
+  notifications   Notification[]
+  sentNotifications NotificationSent[]
+  sessions        Session[]
+  likes           Like[]
+  
+  @@index([email])
+  @@index([username])
+  @@index([role])
+  @@index([status])
+}
+
+// Stock/Symbol model - represents tradable assets
+model Stock {
+  id              String          @id @default(uuid())
+  symbol          String          @unique
+  name            String
+  exchange        MarketExchange
+  segment         MarketSegment
+  assetType       AssetType
+  isinCode        String?         @unique
+  
+  // Market data
+  lastPrice       Decimal?        @db.Decimal(10, 2)
+  dayChange       Decimal?        @db.Decimal(10, 2)
+  dayChangePercent Decimal?       @db.Decimal(5, 2)
+  volume          BigInt?
+  
+  // Meta
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  predictions     Prediction[]
+  news            NewsArticle[]
+  priceHistory    PriceHistory[]
+  followers       StockFollow[]
+  
+  @@index([symbol])
+  @@index([exchange])
+  @@index([assetType])
+}
+
+// Prediction model - core feature
+model Prediction {
+  id              String          @id @default(uuid())
+  userId          String
+  stockId         String
+  
+  // Prediction details
+  predicate       PredictionPredicate
+  targetPrice     Decimal         @db.Decimal(10, 2)
+  targetMetric    PredictionMetric
+  deadline        DateTime
+  timeframe       PredictionTimeframe
+  reasoning       String?         @db.Text
+  
+  // Result
+  status          PredictionStatus @default(PENDING)
+  actualPrice     Decimal?        @db.Decimal(10, 2)
+  verdictAt       DateTime?
+  hitMargin       Decimal?        @db.Decimal(5, 2) // percentage difference
+  
+  // Engagement
+  viewsCount      Int             @default(0)
+  likesCount      Int             @default(0)
+  commentsCount   Int             @default(0)
+  sharesCount     Int             @default(0)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  user            User            @relation(fields: [userId], references: [id])
+  stock           Stock           @relation(fields: [stockId], references: [id])
+  comments        Comment[]
+  likes           Like[]
+  
+  @@index([userId])
+  @@index([stockId])
+  @@index([deadline])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Follow relationships between users
+model Follow {
+  id              String          @id @default(uuid())
+  followerId      String
+  followingId     String
+  createdAt       DateTime        @default(now())
+  
+  follower        User            @relation("following", fields: [followerId], references: [id])
+  following       User            @relation("followers", fields: [followingId], references: [id])
+  
+  @@unique([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
+}
+
+// Stock follow relationships
+model StockFollow {
+  id              String          @id @default(uuid())
+  userId          String
+  stockId         String
+  createdAt       DateTime        @default(now())
+  
+  user            User            @relation(fields: [userId], references: [id])
+  stock           Stock           @relation(fields: [stockId], references: [id])
+  
+  @@unique([userId, stockId])
+  @@index([userId])
+  @@index([stockId])
+}
+
+// Community/Hashtag model
+model Community {
+  id              String          @id @default(uuid())
+  name            String          @unique
+  displayName     String
+  description     String?
+  coverImageUrl   String?
+  
+  // Settings
+  isPrivate       Boolean         @default(false)
+  requiresApproval Boolean        @default(false)
+  
+  // Stats
+  membersCount    Int             @default(0)
+  postsCount      Int             @default(0)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  members         CommunityMember[]
+  posts           Post[]
+  
+  @@index([name])
+}
+
+// Community membership
+model CommunityMember {
+  id              String          @id @default(uuid())
+  userId          String
+  communityId     String
+  role            CommunityRole   @default(MEMBER)
+  joinedAt        DateTime        @default(now())
+  
+  user            User            @relation(fields: [userId], references: [id])
+  community       Community       @relation(fields: [communityId], references: [id])
+  
+  @@unique([userId, communityId])
+  @@index([userId])
+  @@index([communityId])
+}
+
+// Posts in communities
+model Post {
+  id              String          @id @default(uuid())
+  userId          String
+  communityId     String
+  content         String          @db.Text
+  
+  // Engagement
+  viewsCount      Int             @default(0)
+  likesCount      Int             @default(0)
+  commentsCount   Int             @default(0)
+  sharesCount     Int             @default(0)
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  user            User            @relation(fields: [userId], references: [id])
+  community       Community       @relation(fields: [communityId], references: [id])
+  comments        Comment[]
+  likes           Like[]
+  
+  @@index([userId])
+  @@index([communityId])
+  @@index([createdAt])
+}
+
+// Comments on predictions and posts
+model Comment {
+  id              String          @id @default(uuid())
+  userId          String
+  content         String          @db.Text
+  
+  // Polymorphic relation
+  predictionId    String?
+  postId          String?
+  
+  // Timestamps
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relations
+  user            User            @relation(fields: [userId], references: [id])
+  prediction      Prediction?     @relation(fields: [predictionId], references: [id])
+  post            Post?           @relation(fields: [postId], references: [id])
+  
+  @@index([userId])
+  @@index([predictionId])
+  @@index([postId])
+}
+
+// Likes on predictions and posts
+model Like {
+  id              String          @id @default(uuid())
+  userId          String
+  
+  // Polymorphic relation
+  predictionId    String?
+  postId          String?
+  
+  createdAt       DateTime        @default(now())
+  
+  // Relations
+  user            User            @relation(fields: [userId], references: [id])
+  prediction      Prediction?     @relation(fields: [predictionId], references: [id])
+  post            Post?           @relation(fields: [postId], references: [id])
+  
+  @@unique([userId, predictionId])
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([predictionId])
+  @@index([postId])
+}
+
+// News articles
+model NewsArticle {
+  id              String          @id @default(uuid())
+  stockId         String?
+  
+  title           String
+  summary         String?
+  content         String?         @db.Text
+  sourceUrl       String
+  sourceProvider  String
+  imageUrl        String?
+  
+  publishedAt     DateTime
+  createdAt       DateTime        @default(now())
+  
+  // Relations
+  stock           Stock?          @relation(fields: [stockId], references: [id])
+  
+  @@index([stockId])
+  @@index([publishedAt])
+}
+
+// Price history for backtesting
+model PriceHistory {
+  id              String          @id @default(uuid())
+  stockId         String
+  
+  date            DateTime
+  open            Decimal         @db.Decimal(10, 2)
+  high            Decimal         @db.Decimal(10, 2)
+  low             Decimal         @db.Decimal(10, 2)
+  close           Decimal         @db.Decimal(10, 2)
+  volume          BigInt
+  
+  createdAt       DateTime        @default(now())
+  
+  // Relations
+  stock           Stock           @relation(fields: [stockId], references: [id])
+  
+  @@unique([stockId, date])
+  @@index([stockId])
+  @@index([date])
+}
+
+// Notifications
+model Notification {
+  id              String          @id @default(uuid())
+  userId          String
+  type            NotificationType
+  title           String
+  message         String
+  data            Json?
+  
+  isRead          Boolean         @default(false)
+  readAt          DateTime?
+  
+  createdAt       DateTime        @default(now())
+  
+  // Relations
+  user            User            @relation(fields: [userId], references: [id])
+  sent            NotificationSent[]
+  
+  @@index([userId])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+// Track notification delivery
+model NotificationSent {
+  id              String          @id @default(uuid())
+  notificationId  String
+  userId          String
+  channel         NotificationChannel
+  
+  status          NotificationStatus @default(PENDING)
+  sentAt          DateTime?
+  deliveredAt     DateTime?
+  failureReason   String?
+  
+  createdAt       DateTime        @default(now())
+  
+  // Relations
+  notification    Notification    @relation(fields: [notificationId], references: [id])
+  user            User            @relation(fields: [userId], references: [id])
+  
+  @@index([notificationId])
+  @@index([userId])
+  @@index([status])
+}
+
+// User sessions
+model Session {
+  id              String          @id @default(uuid())
+  userId          String
+  token           String          @unique
+  
+  deviceInfo      Json?
+  ipAddress       String?
+  userAgent       String?
+  
+  expiresAt       DateTime
+  createdAt       DateTime        @default(now())
+  lastActivityAt  DateTime        @default(now())
+  
+  // Relations
+  user            User            @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+
+// Enums
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+  SYSTEM
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  DELETED
+}
+
+enum AuthProvider {
+  EMAIL
+  KITE
+  GOOGLE
+  PHONE
+}
+
+enum MarketExchange {
+  NSE
+  BSE
+  MCX
+  NCDEX
+}
+
+enum MarketSegment {
+  EQUITY
+  FUTURES
+  OPTIONS
+  COMMODITY
+  CURRENCY
+}
+
+enum AssetType {
+  STOCK
+  INDEX
+  ETF
+  MUTUAL_FUND
+  BOND
+  COMMODITY
+  CURRENCY
+}
+
+enum PredictionStatus {
+  PENDING
+  HIT
+  MISS
+  PARTIAL
+  EXPIRED
+  CANCELLED
+}
+
+enum PredictionPredicate {
+  GREATER_THAN
+  LESS_THAN
+  GREATER_THAN_OR_EQUAL
+  LESS_THAN_OR_EQUAL
+  EQUAL
+}
+
+enum PredictionMetric {
+  CLOSE
+  OPEN
+  HIGH
+  LOW
+  VOLUME
+}
+
+enum PredictionTimeframe {
+  INTRADAY
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum CommunityRole {
+  MEMBER
+  MODERATOR
+  ADMIN
+}
+
+enum NotificationType {
+  PREDICTION_HIT
+  PREDICTION_MISS
+  PREDICTION_COMMENT
+  FOLLOW_USER
+  FOLLOW_STOCK
+  MARKET_ALERT
+  NEWS_ALERT
+  COMMUNITY_POST
+  COMMUNITY_INVITE
+  SYSTEM
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+  PUSH
+  WEBHOOK
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+} 

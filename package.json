@@ -1,0 +1,29 @@
+{
+  "name": "pred-social",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stock Prediction Social Platform - A transparent scoreboard for market opinions",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "docker:build": "turbo run docker:build",
+    "docker:up": "docker-compose -f docker/docker-compose.yml up -d",
+    "docker:down": "docker-compose -f docker/docker-compose.yml down",
+    "db:migrate": "turbo run db:migrate",
+    "db:generate": "turbo run db:generate"
+  },
+  "keywords": ["stock", "prediction", "social", "trading"],
+  "author": "Dheeraj Jha",
+  "license": "MIT",
+  "devDependencies": {
+    "turbo": "^2.5.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0"
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@app/prisma-schema",
+  "version": "1.0.0",
+  "description": "Shared Prisma schema and client",
+  "main": "index.js",
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "postinstall": "prisma generate"
+  },
+  "keywords": ["prisma", "database", "schema"],
+  "author": "Dheeraj Jha",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.7.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.7.1",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  }
+}
