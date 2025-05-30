@@ -11,15 +11,22 @@
     "db:studio": "prisma studio",
     "postinstall": "prisma generate"
   },
-  "keywords": ["prisma", "database", "schema"],
+  "keywords": [
+    "prisma",
+    "database",
+    "schema"
+  ],
   "author": "Dheeraj Jha",
   "license": "MIT",
   "dependencies": {
     "@prisma/client": "^5.7.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/node": "^20.17.54",
+    "bcrypt": "^6.0.0",
     "prisma": "^5.7.1",
-    "@types/node": "^20.10.5",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
   "prisma": {
