@@ -1,82 +1,158 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsEmail, IsNotEmpty, IsString, MinLength, IsOptional } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 @InputType()
 export class LoginInput {
   @Field()
   @IsEmail()
-  email: string;
+  @ApiProperty({
+    description: 'User email address',
+    example: 'demo@pred-social.com'
+  })
+  email!: string;
 
   @Field()
   @IsNotEmpty()
   @MinLength(6)
-  password: string;
+  @ApiProperty({
+    description: 'User password (min 6 characters)',
+    example: 'demo123'
+  })
+  password!: string;
 }
 
 @InputType()
 export class RegisterInput {
   @Field()
   @IsEmail()
-  email: string;
+  @ApiProperty({
+    description: 'User email address',
+    example: 'newuser@example.com'
+  })
+  email!: string;
 
   @Field()
   @IsNotEmpty()
   @IsString()
-  username: string;
+  @ApiProperty({
+    description: 'Username (for the profile URL)',
+    example: 'newuser'
+  })
+  username!: string;
 
   @Field()
   @IsNotEmpty()
   @IsString()
-  displayName: string;
+  @ApiProperty({
+    description: 'Display name (shown on the profile)',
+    example: 'New User'
+  })
+  displayName!: string;
 
   @Field()
   @IsNotEmpty()
   @MinLength(6)
-  password: string;
+  @ApiProperty({
+    description: 'User password (min 6 characters)',
+    example: 'Password123'
+  })
+  password!: string;
 }
 
 @InputType()
 export class RefreshTokenInput {
   @Field()
   @IsNotEmpty()
-  refreshToken: string;
+  @ApiProperty({
+    description: 'JWT refresh token',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+  })
+  refreshToken!: string;
 }
 
 @ObjectType()
 export class AuthResponse {
   @Field()
-  accessToken: string;
+  @ApiProperty({
+    description: 'JWT access token',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+  })
+  accessToken!: string;
 
   @Field()
-  refreshToken: string;
+  @ApiProperty({
+    description: 'JWT refresh token',
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'
+  })
+  refreshToken!: string;
 
   @Field()
-  expiresIn: number;
+  @ApiProperty({
+    description: 'Token expiration time in seconds',
+    example: 604800
+  })
+  expiresIn!: number;
 }
 
 @ObjectType()
 export class User {
   @Field()
-  id: string;
+  @ApiProperty({
+    description: 'User ID',
+    example: '123e4567-e89b-12d3-a456-426614174000'
+  })
+  id!: string;
 
   @Field()
-  email: string;
+  @ApiProperty({
+    description: 'User email address',
+    example: 'user@example.com'
+  })
+  email!: string;
 
   @Field()
-  username: string;
+  @ApiProperty({
+    description: 'Username (for the profile URL)',
+    example: 'johndoe'
+  })
+  username!: string;
 
   @Field()
-  displayName: string;
+  @ApiProperty({
+    description: 'Display name (shown on the profile)',
+    example: 'John Doe'
+  })
+  displayName!: string;
 
   @Field({ nullable: true })
+  @ApiProperty({
+    description: 'User bio',
+    example: 'Passionate investor and analyst',
+    required: false
+  })
   bio?: string;
 
   @Field({ nullable: true })
+  @ApiProperty({
+    description: 'URL to user avatar image',
+    example: 'https://example.com/avatar.jpg',
+    required: false
+  })
   avatarUrl?: string;
 
   @Field()
-  role: string;
+  @ApiProperty({
+    description: 'User role',
+    example: 'user',
+    enum: ['user', 'admin', 'moderator']
+  })
+  role!: string;
 
   @Field()
-  createdAt: Date;
+  @ApiProperty({
+    description: 'Account creation timestamp',
+    example: '2023-05-30T12:00:00.000Z'
+  })
+  createdAt!: Date;
 } 

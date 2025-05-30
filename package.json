@@ -15,7 +15,12 @@
     "db:migrate": "turbo run db:migrate",
     "db:generate": "turbo run db:generate"
   },
-  "keywords": ["stock", "prediction", "social", "trading"],
+  "keywords": [
+    "stock",
+    "prediction",
+    "social",
+    "trading"
+  ],
   "author": "Dheeraj Jha",
   "license": "MIT",
   "devDependencies": {
@@ -25,5 +30,10 @@
     "node": ">=18.0.0",
     "pnpm": ">=8.0.0"
   },
-  "packageManager": "pnpm@8.15.0"
+  "packageManager": "pnpm@8.15.0",
+  "dependencies": {
+    "@app/gateway": "workspace:^",
+    "@nestjs/swagger": "^11.2.0",
+    "swagger-ui-express": "^5.0.1"
+  }
 }

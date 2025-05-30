@@ -41,7 +41,7 @@ import configuration from './config/configuration';
           },
         },
       },
-      context: ({ req, res, connection }) => {
+      context: ({ req, res, connection }: { req: any; res: any; connection?: any }) => {
         if (connection) {
           return { req: connection.context };
         }

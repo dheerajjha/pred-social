@@ -1,12 +1,12 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "type": "application",
-  "root": "apps/gateway",
+  "root": "src",
   "entryFile": "main",
-  "sourceRoot": "apps/gateway/src",
+  "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
     "webpack": false,
-    "tsConfigPath": "apps/gateway/tsconfig.json"
+    "tsConfigPath": "tsconfig.json"
   }
 } 

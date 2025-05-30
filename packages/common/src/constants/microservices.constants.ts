@@ -1,0 +1,22 @@
+// Microservice ports
+export const GATEWAY_PORT = 5010;
+export const AUTH_SERVICE_PORT = 5011;
+export const USER_SERVICE_PORT = 5012;
+export const PREDICTION_SERVICE_PORT = 5013;
+export const SCORING_WORKER_PORT = 5014;
+export const FEED_SERVICE_PORT = 5015;
+export const MARKET_INGEST_PORT = 5016;
+export const NEWS_INGEST_PORT = 5017;
+export const NOTIFY_SERVICE_PORT = 5018;
+export const COMM_SERVICE_PORT = 5019;
+
+// Microservice names
+export const AUTH_SERVICE_NAME = 'AUTH_SERVICE';
+export const USER_SERVICE_NAME = 'USER_SERVICE';
+export const PREDICTION_SERVICE_NAME = 'PREDICTION_SERVICE';
+export const SCORING_WORKER_NAME = 'SCORING_WORKER';
+export const FEED_SERVICE_NAME = 'FEED_SERVICE';
+export const MARKET_INGEST_NAME = 'MARKET_INGEST';
+export const NEWS_INGEST_NAME = 'NEWS_INGEST';
+export const NOTIFY_SERVICE_NAME = 'NOTIFY_SERVICE';
+export const COMM_SERVICE_NAME = 'COMM_SERVICE'; 

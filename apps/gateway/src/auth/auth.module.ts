@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthResolver } from './auth.resolver';
 import { AuthService } from './auth.service';
+import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { GqlAuthGuard } from './guards/gql-auth.guard';
@@ -37,6 +38,7 @@ import { GqlAuthGuard } from './guards/gql-auth.guard';
       },
     ]),
   ],
+  controllers: [AuthController],
   providers: [
     AuthResolver,
     AuthService,

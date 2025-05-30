@@ -19,12 +19,13 @@ A transparent scoreboard for stock market opinions where retail investors can ma
 - **Message Bus**: Redis Streams (MVP), upgrade to Kafka for scale
 - **Market Data**: Upstox WebSocket API v3 for live prices
 - **Auth**: Kite Connect OAuth 2.0 + email/OTP fallback
+- **API Documentation**: Swagger UI + GraphQL Playground
 
 ### Microservices
 
 | Service | Port | Description | Status |
 |---------|------|-------------|---------|
-| gateway | 5010 | GraphQL API Gateway with auth guards | ✅ Implemented |
+| gateway | 5010 | GraphQL & REST API Gateway with Swagger docs | ✅ Implemented |
 | auth-svc | 5011 | Authentication & JWT management | 🚧 Pending |
 | user-svc | 5012 | User profiles & follow graph | 🚧 Pending |
 | prediction-svc | 5013 | Prediction CRUD & validation | 🚧 Pending |
@@ -85,10 +86,27 @@ pnpm dev
 
 ### Accessing Services
 
+- **REST API Documentation**: http://localhost:5010/api (Swagger UI)
 - **GraphQL Playground**: http://localhost:5010/graphql
+- **Health Check Endpoint**: http://localhost:5010/health
 - **pgAdmin**: http://localhost:5050 (admin@pred-social.com / admin_password)
 - **Redis Commander**: http://localhost:8081
 - **Prisma Studio**: Run `cd packages/prisma-schema && npx prisma studio`
+
+### API Testing
+
+You can test the API endpoints through:
+1. **Swagger UI**: Navigate to http://localhost:5010/api to interact with the REST API endpoints
+2. **GraphQL Playground**: Navigate to http://localhost:5010/graphql to test GraphQL queries and mutations
+
+### Authentication
+
+The gateway service implements JWT-based authentication:
+1. Register a user at `/auth/register` endpoint
+2. Login with credentials at `/auth/login` endpoint
+3. Use the returned JWT token for authenticated requests:
+   - In Swagger: Click "Authorize" button and enter the token
+   - In GraphQL: Add the token to HTTP headers: `{"Authorization": "Bearer YOUR_TOKEN"}`
 
 ### Demo Credentials
 
@@ -101,7 +119,12 @@ After running the seed script, you can login with:
 ```
 pred-social/
 ├── apps/                    # Microservice applications
-│   ├── gateway/            # GraphQL API Gateway (implemented)
+│   ├── gateway/            # GraphQL & REST API Gateway (implemented)
+│   │   ├── src/            # Gateway source code
+│   │   │   ├── main.ts     # Entry point with Swagger configuration
+│   │   │   ├── auth/       # Authentication module (JWT, Guards)
+│   │   │   ├── user/       # User management endpoints
+│   │   │   └── health/     # Health check endpoints
 │   ├── auth-svc/          # Authentication service (pending)
 │   ├── user-svc/          # User management (pending)
 │   ├── prediction-svc/    # Predictions service (pending)
@@ -112,7 +135,7 @@ pred-social/
 │   ├── notify-svc/       # Notifications (pending)
 │   └── comm-svc/         # Communities (pending)
 ├── packages/              # Shared packages
-│   ├── common/           # Shared DTOs, utils, guards (partial)
+│   ├── common/           # Shared DTOs, utils, guards, constants (implemented)
 │   ├── prisma-schema/    # Database schema (implemented)
 │   └── ui/              # React component library (pending)
 ├── docker/               # Docker configurations
@@ -159,10 +182,12 @@ The database comes pre-populated with:
 ### Phase 1: MVP (12-16 weeks)
 - [x] Project setup & architecture
 - [x] Database schema design
-- [x] Gateway service with GraphQL
-- [x] Basic auth module structure
+- [x] Gateway service with GraphQL & REST APIs
+- [x] Swagger API documentation
+- [x] Basic auth module structure with JWT implementation
 - [x] Database migrations
 - [x] Seed data setup
+- [x] Common package with shared constants and utilities
 - [ ] Complete auth microservice
 - [ ] User service implementation
 - [ ] Basic prediction CRUD
@@ -200,3 +225,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Upstox for market data APIs
 - Kite Connect for OAuth integration
 - NestJS community for the excellent framework
+- Swagger UI for API documentation
